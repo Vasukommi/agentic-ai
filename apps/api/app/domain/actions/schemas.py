@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, Field
@@ -45,11 +46,16 @@ class ActionDefinition(BaseModel):
     confirmation_policy: ConfirmationPolicy = Field(default_factory=ConfirmationPolicy)
 
 
+class ActionCreateRequest(ActionDefinition):
+    pass
+
+
 class ActionRunRequest(BaseModel):
     action_id: str
     inputs: dict[str, Any] = Field(default_factory=dict)
     confirmed: bool = False
     dry_run: bool = True
+    end_user_ref: Optional[str] = None
 
 
 class MissingField(BaseModel):
@@ -67,3 +73,7 @@ class ActionRunResponse(BaseModel):
     missing_fields: list[MissingField] = Field(default_factory=list)
     normalized_inputs: dict[str, Any] = Field(default_factory=dict)
     result: dict[str, Any] = Field(default_factory=dict)
+
+
+class ActionRunRecord(ActionRunResponse):
+    created_at: Optional[datetime] = None

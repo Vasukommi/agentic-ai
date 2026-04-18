@@ -1,96 +1,61 @@
 from typing import Optional
 
 from app.domain.actions.schemas import (
+    ActionCreateRequest,
     ActionDefinition,
-    ActionField,
     ConfirmationPolicy,
 )
+from app.models.action import Action
 
 
-class ActionRegistry:
-    def __init__(self) -> None:
-        self._actions = {
-            action.id: action
-            for action in [
-                ActionDefinition(
-                    id="invite_team_member",
-                    name="Invite team member",
-                    description="Invite a new user into the current workspace.",
-                    category="identity",
-                    risk_level="medium",
-                    input_fields=[
-                        ActionField(
-                            key="email",
-                            label="Email",
-                            kind="email",
-                            description="Email address of the person to invite.",
-                        ),
-                        ActionField(
-                            key="role",
-                            label="Role",
-                            kind="enum",
-                            enum_values=["viewer", "editor", "admin"],
-                            description="Role to assign after the invite is accepted.",
-                        ),
-                    ],
-                    confirmation_policy=ConfirmationPolicy(
-                        required=True,
-                        message="Invite this user to the workspace?",
-                    ),
-                ),
-                ActionDefinition(
-                    id="create_project",
-                    name="Create project",
-                    description="Create a project for the current account.",
-                    category="workspace",
-                    risk_level="low",
-                    input_fields=[
-                        ActionField(
-                            key="name",
-                            label="Project name",
-                            kind="string",
-                        ),
-                        ActionField(
-                            key="description",
-                            label="Description",
-                            kind="string",
-                            required=False,
-                        ),
-                    ],
-                ),
-                ActionDefinition(
-                    id="change_plan",
-                    name="Change subscription plan",
-                    description="Change the current workspace subscription plan.",
-                    category="billing",
-                    risk_level="high",
-                    input_fields=[
-                        ActionField(
-                            key="plan",
-                            label="Plan",
-                            kind="enum",
-                            enum_values=["starter", "growth", "enterprise"],
-                        ),
-                        ActionField(
-                            key="effective_date",
-                            label="Effective date",
-                            kind="date",
-                            required=False,
-                        ),
-                    ],
-                    confirmation_policy=ConfirmationPolicy(
-                        required=True,
-                        message="Changing plans may affect billing. Confirm before continuing.",
-                    ),
-                ),
-            ]
-        }
+class ActionService:
+    def list_actions(self, db, app_id: Optional[str] = None) -> list[ActionDefinition]:
+        query = db.query(Action).filter(Action.enabled.is_(True)).order_by(Action.created_at.asc())
+        if app_id:
+            query = query.filter(Action.app_id == app_id)
+        return [self.to_definition(action) for action in query.all()]
 
-    def list_actions(self) -> list[ActionDefinition]:
-        return list(self._actions.values())
+    def get_action(self, db, action_id: str, app_id: Optional[str] = None) -> Optional[Action]:
+        query = db.query(Action).filter(Action.key == action_id, Action.enabled.is_(True))
+        if app_id:
+            query = query.filter(Action.app_id == app_id)
+        return query.first()
 
-    def get_action(self, action_id: str) -> Optional[ActionDefinition]:
-        return self._actions.get(action_id)
+    def create_action(
+        self,
+        db,
+        request: ActionCreateRequest,
+        app_id: str,
+        commit: bool = True,
+    ) -> Action:
+        action = Action(
+            app_id=app_id,
+            key=request.id,
+            name=request.name,
+            description=request.description,
+            category=request.category,
+            risk_level=request.risk_level,
+            input_fields=[field.model_dump() for field in request.input_fields],
+            confirmation_policy=request.confirmation_policy.model_dump(),
+        )
+        db.add(action)
+        if commit:
+            db.commit()
+            db.refresh(action)
+        else:
+            db.flush()
+        return action
+
+    def to_definition(self, action: Action) -> ActionDefinition:
+        return ActionDefinition(
+            id=action.key,
+            name=action.name,
+            description=action.description,
+            category=action.category,
+            risk_level=action.risk_level,
+            input_fields=action.input_fields,
+            confirmation_policy=ConfirmationPolicy(**action.confirmation_policy),
+        )
 
 
-action_registry = ActionRegistry()
+action_service = ActionService()

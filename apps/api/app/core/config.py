@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     environment: str = "local"
     api_prefix: str = "/v1"
     cors_origins: list[str] = ["http://localhost:3000"]
+    database_url: str = "sqlite:///./agentic_ai.db"
+    auto_create_tables: bool = True
 
     model_config = SettingsConfigDict(
         env_file=".env",

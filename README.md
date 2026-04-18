@@ -34,10 +34,19 @@ Then open:
 - Docs: `http://127.0.0.1:8000/docs`
 - Health: `http://127.0.0.1:8000/health`
 
+By default the API uses local SQLite at `apps/api/agentic_ai.db` so the foundation can run without Docker. Production should use Postgres through `AGENTIC_DATABASE_URL`.
+
+```sh
+cd apps/api
+alembic -c alembic.ini upgrade head
+```
+
 ## First Runtime Endpoints
 
 - `GET /v1/actions` lists available action contracts.
+- `POST /v1/actions` creates a persisted action contract.
 - `GET /v1/actions/{action_id}` returns one action contract.
 - `POST /v1/runs` validates an action request and returns either missing fields, confirmation needed, or a mocked completion.
+- `GET /v1/runs` lists persisted run records.
 
-The current runtime is intentionally in-memory. Persistence, tenant auth, real connector execution, and durable workflows come next.
+The current runtime persists organizations, apps, actions, runs, and audit events. Tenant auth, real connector execution, and durable workflows come next.
