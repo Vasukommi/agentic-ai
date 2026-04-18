@@ -45,6 +45,7 @@ The first persisted model is intentionally small:
 - `organizations`: our customer company.
 - `apps`: one SaaS product or environment owned by an organization.
 - `actions`: typed action contracts enabled for an app.
+- `app_sessions`: short-lived embedded end-user sessions for a specific app and tenant.
 - `runs`: action execution attempts and current status.
 - `audit_events`: append-only execution and diagnostic trail.
 

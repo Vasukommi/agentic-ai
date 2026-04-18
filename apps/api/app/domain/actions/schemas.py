@@ -55,7 +55,6 @@ class ActionRunRequest(BaseModel):
     inputs: dict[str, Any] = Field(default_factory=dict)
     confirmed: bool = False
     dry_run: bool = True
-    end_user_ref: Optional[str] = None
 
 
 class MissingField(BaseModel):
@@ -76,4 +75,6 @@ class ActionRunResponse(BaseModel):
 
 
 class ActionRunRecord(ActionRunResponse):
+    end_user_ref: Optional[str] = None
+    tenant_ref: Optional[str] = None
     created_at: Optional[datetime] = None

@@ -26,3 +26,4 @@ class SaasApp(Base):
     organization = relationship("Organization", back_populates="apps")
     actions = relationship("Action", back_populates="app", cascade="all, delete-orphan")
     runs = relationship("Run", back_populates="app", cascade="all, delete-orphan")
+    sessions = relationship("AppSession", back_populates="app", cascade="all, delete-orphan")
