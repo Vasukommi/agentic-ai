@@ -12,6 +12,7 @@ class Run(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid4()))
     app_id = Column(String(36), ForeignKey("apps.id"), nullable=False, index=True)
     action_id = Column(String(36), ForeignKey("actions.id"), nullable=True, index=True)
+    session_id = Column(String(36), ForeignKey("app_sessions.id"), nullable=True, index=True)
     status = Column(String(40), nullable=False, index=True)
     message = Column(String(1000), nullable=False)
     inputs = Column(JSON, nullable=False, default=dict)
@@ -22,6 +23,7 @@ class Run(Base):
     dry_run = Column(Boolean, nullable=False, default=True)
     actor_type = Column(String(40), nullable=False, default="end_user")
     end_user_ref = Column(String(255), nullable=True)
+    tenant_ref = Column(String(255), nullable=True)
     created_at = Column(
         DateTime(timezone=True),
         nullable=False,
@@ -37,4 +39,5 @@ class Run(Base):
 
     app = relationship("SaasApp", back_populates="runs")
     action = relationship("Action", back_populates="runs")
+    session = relationship("AppSession", back_populates="runs")
     audit_events = relationship("AuditEvent", back_populates="run", cascade="all, delete-orphan")

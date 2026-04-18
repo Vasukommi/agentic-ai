@@ -46,7 +46,10 @@ alembic -c alembic.ini upgrade head
 - `GET /v1/actions` lists available action contracts.
 - `POST /v1/actions` creates a persisted action contract.
 - `GET /v1/actions/{action_id}` returns one action contract.
+- `POST /v1/sessions` creates a short-lived bearer token for an embedded end user.
 - `POST /v1/runs` validates an action request and returns either missing fields, confirmation needed, or a mocked completion.
 - `GET /v1/runs` lists persisted run records.
 
 The current runtime persists organizations, apps, actions, runs, and audit events. Tenant auth, real connector execution, and durable workflows come next.
+
+`POST /v1/runs` requires `Authorization: Bearer <session_token>` from `POST /v1/sessions`.

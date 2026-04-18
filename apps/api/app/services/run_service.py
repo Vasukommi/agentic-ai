@@ -9,6 +9,7 @@ from app.domain.actions.schemas import (
     MissingField,
 )
 from app.models.action import Action
+from app.models.app_session import AppSession
 from app.models.audit_event import AuditEvent
 from app.models.run import Run
 from app.services.action_registry import action_service
@@ -26,6 +27,8 @@ class RunService:
                 missing_fields=run.missing_fields,
                 normalized_inputs=run.normalized_inputs,
                 result=run.result,
+                end_user_ref=run.end_user_ref,
+                tenant_ref=run.tenant_ref,
                 created_at=run.created_at,
             )
             for run in runs
@@ -36,6 +39,7 @@ class RunService:
         db,
         action: Action,
         request: ActionRunRequest,
+        app_session: AppSession,
     ) -> ActionRunResponse:
         action_definition = action_service.to_definition(action)
         normalized_inputs = self._normalize_inputs(action=action_definition, inputs=request.inputs)
@@ -49,6 +53,7 @@ class RunService:
                 db=db,
                 action=action,
                 request=request,
+                app_session=app_session,
                 response=ActionRunResponse(
                     run_id=str(uuid4()),
                     action_id=action.key,
@@ -64,6 +69,7 @@ class RunService:
                 db=db,
                 action=action,
                 request=request,
+                app_session=app_session,
                 response=ActionRunResponse(
                     run_id=str(uuid4()),
                     action_id=action.key,
@@ -78,6 +84,7 @@ class RunService:
             db=db,
             action=action,
             request=request,
+            app_session=app_session,
             response=ActionRunResponse(
                 run_id=str(uuid4()),
                 action_id=action.key,
@@ -131,12 +138,14 @@ class RunService:
         db,
         action: Action,
         request: ActionRunRequest,
+        app_session: AppSession,
         response: ActionRunResponse,
     ) -> ActionRunResponse:
         run = Run(
             id=response.run_id,
             app_id=action.app_id,
             action_id=action.id,
+            session_id=app_session.id,
             status=response.status,
             message=response.message,
             inputs=request.inputs,
@@ -145,7 +154,8 @@ class RunService:
             result=response.result,
             confirmed=request.confirmed,
             dry_run=request.dry_run,
-            end_user_ref=request.end_user_ref,
+            end_user_ref=app_session.end_user_ref,
+            tenant_ref=app_session.tenant_ref,
         )
         db.add(run)
         db.flush()
@@ -161,6 +171,11 @@ class RunService:
                     "action_key": action.key,
                     "dry_run": request.dry_run,
                     "confirmed": request.confirmed,
+                    "session_id": app_session.id,
+                    "end_user_ref": app_session.end_user_ref,
+                    "tenant_ref": app_session.tenant_ref,
+                    "roles": app_session.roles,
+                    "permissions": app_session.permissions,
                 },
             )
         )
