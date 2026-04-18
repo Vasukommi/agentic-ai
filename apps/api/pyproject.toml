@@ -5,7 +5,10 @@ description = "FastAPI runtime for an embedded AI action layer."
 requires-python = ">=3.9"
 dependencies = [
   "fastapi>=0.115.0",
+  "alembic>=1.13.0",
+  "psycopg[binary]>=3.2.0",
   "pydantic-settings>=2.4.0",
+  "sqlalchemy>=2.0.0",
   "uvicorn[standard]>=0.30.0",
 ]
 
@@ -29,3 +32,4 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B"]
+ignore = ["B008"]

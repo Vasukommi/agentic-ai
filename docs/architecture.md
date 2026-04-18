@@ -38,6 +38,18 @@ This is a hosted embedded-agent platform for SaaS companies.
 - `EvidencePack`: curated logs, trace IDs, errors, recent actions, metadata, and summaries for support/dev teams.
 - `Ticket`: an external support or engineering issue created from a diagnostic run.
 
+## Persistence Foundation
+
+The first persisted model is intentionally small:
+
+- `organizations`: our customer company.
+- `apps`: one SaaS product or environment owned by an organization.
+- `actions`: typed action contracts enabled for an app.
+- `runs`: action execution attempts and current status.
+- `audit_events`: append-only execution and diagnostic trail.
+
+Local development can use SQLite. Production should use Postgres. Schema changes should go through Alembic migrations.
+
 ## UI Principle
 
 The embedded agent must be host-controlled by default.
