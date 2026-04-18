@@ -52,4 +52,11 @@ alembic -c alembic.ini upgrade head
 
 The current runtime persists organizations, apps, actions, runs, and audit events. Tenant auth, real connector execution, and durable workflows come next.
 
-`POST /v1/runs` requires `Authorization: Bearer <session_token>` from `POST /v1/sessions`.
+`POST /v1/runs` and `GET /v1/runs` require `Authorization: Bearer <session_token>` from `POST /v1/sessions`.
+
+If `AGENTIC_SESSION_SIGNING_SECRET` is configured, `POST /v1/sessions` also requires:
+
+- `X-Agentic-Timestamp: <unix-seconds>`
+- `X-Agentic-Signature: sha256=<hmac>`
+
+The signature payload is `<timestamp>.<raw-request-body>` using HMAC-SHA256.

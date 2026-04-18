@@ -64,12 +64,19 @@ class MissingField(BaseModel):
     description: Optional[str] = None
 
 
+class InvalidField(BaseModel):
+    key: str
+    label: str
+    reason: str
+
+
 class ActionRunResponse(BaseModel):
     run_id: str
     action_id: str
     status: RunStatus
     message: str
     missing_fields: list[MissingField] = Field(default_factory=list)
+    invalid_fields: list[InvalidField] = Field(default_factory=list)
     normalized_inputs: dict[str, Any] = Field(default_factory=dict)
     result: dict[str, Any] = Field(default_factory=dict)
 

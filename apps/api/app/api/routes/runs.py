@@ -12,8 +12,11 @@ router = APIRouter(prefix="/runs", tags=["runs"])
 
 
 @router.get("")
-def list_runs(db: Session = Depends(get_db)) -> list[ActionRunRecord]:
-    return run_service.list_runs(db)
+def list_runs(
+    db: Session = Depends(get_db),
+    app_session: AppSession = Depends(get_current_app_session),
+) -> list[ActionRunRecord]:
+    return run_service.list_runs_for_session(db, app_session=app_session)
 
 
 @router.post("")

@@ -1,4 +1,5 @@
 from functools import lru_cache
+from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -10,6 +11,8 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     database_url: str = "sqlite:///./agentic_ai.db"
     auto_create_tables: bool = True
+    session_signing_secret: Optional[str] = None
+    session_signature_ttl_seconds: int = 300
 
     model_config = SettingsConfigDict(
         env_file=".env",
