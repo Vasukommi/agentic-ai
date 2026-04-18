@@ -1,0 +1,43 @@
+# Agentic AI
+
+Embedded AI action layer for SaaS products.
+
+The product goal is to let a SaaS company embed an agent inside its own UI so its end users can complete real product tasks through natural language. The agent should translate intent into typed, validated actions and workflows, not just answer documentation questions.
+
+Project direction and agent working rules live in [AGENTS.md](./AGENTS.md).
+
+## Repo Layout
+
+```text
+apps/
+  api/        FastAPI runtime and action execution API
+  web/        Future admin/control-plane UI
+docs/         Architecture notes and product decisions
+packages/
+  sdk-js/     Future framework-agnostic browser SDK
+  react/      Future React components/hooks
+```
+
+## Backend Quick Start
+
+```sh
+cd apps/api
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+uvicorn app.main:app --reload
+```
+
+Then open:
+
+- API: `http://127.0.0.1:8000`
+- Docs: `http://127.0.0.1:8000/docs`
+- Health: `http://127.0.0.1:8000/health`
+
+## First Runtime Endpoints
+
+- `GET /v1/actions` lists available action contracts.
+- `GET /v1/actions/{action_id}` returns one action contract.
+- `POST /v1/runs` validates an action request and returns either missing fields, confirmation needed, or a mocked completion.
+
+The current runtime is intentionally in-memory. Persistence, tenant auth, real connector execution, and durable workflows come next.
